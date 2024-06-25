@@ -106,6 +106,14 @@
                 }
             });
 
+            $('#dataTable1').on('click', '.delete', function(e) {
+                e.preventDefault();
+                var row = datatable.rows($(this).parents('tr'));
+                var url = $(this).data('href');
+                deleteItem(row, url);
+            });
+
+
             function toggleStatus(id, state) {
                 var status = state ? 0 : 1;
                 $.ajax({
@@ -125,6 +133,27 @@
                         toastr.error('Failed to update customer status. Please try again.');
                     }
                 });
+            }
+
+            function deleteItem(row, url) {
+                if (confirm('Are you sure you want to remove this customer?')) {
+                    $.ajax({
+                        url: url,
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function() {
+                            location.reload();
+                            row.remove().draw();
+                            toastr.success('Customer deleted successfully.');
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error deleting customer:', error);
+                            toastr.error('Failed to delete customer. Please try again.');
+                        }
+                    });
+                }
             }
 
         });
